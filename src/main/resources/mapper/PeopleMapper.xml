@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="lxd.dao.IPeopleMapper">
+    <select id="getPeopelById" parameterType="int" resultType="People">
+        select * from people where id=#{id}
+    </select>
+    <select id="getPeopelByName" parameterType="java.lang.String" resultType="People">
+        select * from people where name like '%${value}%'
+    </select>
+    <select id="getPeopels"  resultType="People">
+        select * from people
+    </select>
+
+    <insert id="insertPeople" parameterType="People">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+          select LAST_INSERT_ID()
+        </selectKey>
+        insert into  people(name,sex,birthday,address,education,phone,email,identity) value (#{name},#{sex},#{birthday},#{address},#{education},#{phone},#{email},#{identity})
+    </insert>
+
+    <delete id="deletePeopelById" parameterType="int">
+        delete from people where id=#{id}
+    </delete>
+
+    <update id="updatePeopelById" parameterType="People">
+        update people set name=#{name},sex=#{sex},birthday=#{birthday},address=#{address},education=#{education},phone=#{phone},email=#{email},identity=#{identity},regAddrId=#{regAddrId}
+        where  id=#{id}
+    </update>
+
+
+    <select id="getPeopleByNameAndReg" parameterType="PeopleQueryVo" resultType="People">
+        select * from people where `name` like '%${people.name}%' and regAddrId in(
+        select id from registerAddr WHERE `name`like '%${registerAddr.name}%')
+    </select>
+
+
+    <resultMap id="1" type="PeopleQueryVo">
+        <association property="people" javaType="People">
+            <id column="pid" property="id"></id>
+            <result column="pname" property="name"></result>
+            <result column="psex" property="sex"></result>
+            <result column="pbirthday" property="birthday"></result>
+            <result column="paddress" property="address"></result>
+            <result column="peducation" property="education"></result>
+            <result column="pphone" property="phone"></result>
+            <result column="pemail" property="email"></result>
+            <result column="pidentity" property="identity"></result>
+            <result column="pregAddrId" property="regAddrId"></result>
+        </association>
+        <association property="iDcard" javaType="IDcard">
+            <id column="Iidentity" property="identity"></id>
+            <result column="IbeginDate" property="beginDate"></result>
+            <result column="IhandlerAddr" property="handlerAddr"></result>
+            <result column="Iexpiry" property="expiry"></result>
+        </association>
+        <association property="registerAddr" javaType="RegisterAddr">
+            <id column="aid" property="id"></id>
+            <result column="aname" property="name"></result>
+            <result column="apeopleSum" property="peopleSum"></result>
+            <result column="aarea" property="area"></result>
+        </association>
+    </resultMap>
+
+    <sql id="peoplesql">
+        <if test="people!=null">
+            <if test="people.name!=null and people.name!=''">
+                AND  p.name LIKE '%${people.name}%'
+            </if>
+        </if>
+    </sql>
+    <sql id="registerAddrsql">
+        <if test="registerAddr!=null">
+            <if test="registerAddr.name!=null and registerAddr.name!=''">
+                AND  addr.name LIKE '%${registerAddr.name}%'
+            </if>
+        </if>
+    </sql>
+    <select id="getPeopleInfoByNameAndReg" parameterType="PeopleQueryVo" resultMap="1">
+        SELECT p.id pid,p.name pname,p.sex psex,p.birthday pbirthday,p.address paddress,p.education peducation,p.phone pphone,p.email pemail,p.identity pidentity,p.regAddrId pregAddrId,
+        Id.identity Iidentity,Id.beginDate IbeginDate,Id.handlerAddr IhandlerAddr,Id.expiry Iexpiry,
+        addr.id aid,addr.name aname,addr.peopleSum apeopleSum, addr.area aarea FROM people p
+        INNER JOIN IDcard Id ON p.identity = Id.identity
+        INNER JOIN registerAddr addr
+        ON p.regAddrId=addr.id
+        <where>
+            <include refid="peoplesql"></include>
+            <include refid="registerAddrsql"></include>
+            <if test="pidentitys!=null">
+                <foreach collection="pidentitys" item="pidentity" open="and p.identity in (" close=")" separator=",">
+                    #{pidentity}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

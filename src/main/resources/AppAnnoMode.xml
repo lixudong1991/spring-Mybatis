@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <import resource="AppConfig.xml"></import>
+
+    <!--
+      配置MapperScannerConfigurer，将会自动扫描basePackage配置的包下的所有Dao接口并使用sqlSessionFactoryBeanName配置的sqlSessionFactory生成对应的实现类，并加入到Spring容器中
+      如果需要扫描多个包，包名之间使用半角分开
+    -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="lxd.dao"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+
+    <context:component-scan base-package="lxd"></context:component-scan>
+    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+    <!--spring 注解方式配置声明式事务控制如下-->
+    <!--第一步配置事物管理器(即切入类)
+        spring jdbc和mybatis使用 org.springframework.jdbc.datasource.DataSourceTransactionManager作为事物管理类
+    -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--第二步开启事物注解扫描-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+    <!--第三步，如AnnoPeopleServiceImpl类所示配置事物
+    @Transactional 注解可以写在接口，类和方法上
+    -->
+</beans>

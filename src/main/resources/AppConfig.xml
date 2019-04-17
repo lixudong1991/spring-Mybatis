@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:property-placeholder location="db.properties"></context:property-placeholder>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!-- 初始化连接大小 -->
+        <property name="initialSize" value="${initialSize}"></property>
+        <!-- 连接池最大数量 -->
+        <property name="maxActive" value="${maxActive}"></property>
+        <!-- 连接池最大空闲 -->
+        <property name="maxIdle" value="${maxIdle}"></property>
+        <!-- 连接池最小空闲 -->
+        <property name="minIdle" value="${minIdle}"></property>
+        <!-- 获取连接最大等待时间 -->
+        <property name="maxWait" value="${maxWait}"></property>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="SqlMapperConfig.xml"></property>
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="mapperLocations" value="mapper/*.xml"></property>
+    </bean>
+
+
+    <bean id="simpleDateFormat" class="java.text.SimpleDateFormat">
+        <constructor-arg value="yyyy-MM-dd"></constructor-arg>
+    </bean>
+
+    <bean id="father" class="lxd.entity.People">
+        <property name="id" value="7"></property>
+        <property name="name" value="李海峰"></property>
+        <property name="sex" value="0"></property>
+        <property name="birthday">
+            <bean class="java.util.Date" factory-bean="simpleDateFormat" factory-method="parse">
+                <constructor-arg value="1965-01-01"></constructor-arg>
+            </bean>
+        </property>
+        <property name="address" value="陕西省咸阳市旬邑县原底乡"></property>
+        <property name="education" value="1"></property>
+        <property name="phone" value="13992021742"></property>
+        <property name="email" value=""></property>
+        <property name="identity" value="61042919920325500x"></property>
+        <property name="regAddrId" value="2"></property>
+    </bean>
+    <bean id="mother" class="lxd.entity.People">
+        <property name="id" value="9"></property>
+        <property name="name" value="冯芳霞"></property>
+        <property name="sex" value="1"></property>
+        <property name="birthday">
+            <bean class="java.util.Date" factory-bean="simpleDateFormat" factory-method="parse">
+                <constructor-arg value="1969-01-01"></constructor-arg>
+            </bean>
+        </property>
+        <property name="address" value="陕西省咸阳市旬邑县原底乡"></property>
+        <property name="education" value="1"></property>
+        <property name="phone" value="18710372902"></property>
+        <property name="email" value=""></property>
+        <property name="identity" value="610429199203255001"></property>
+        <property name="regAddrId" value="2"></property>
+    </bean>
+
+
+</beans>
